@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>CritterCross</title>
+<meta name="description" content="Live wildlife alerts for the roads you actually drive.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A6%8C%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,500,0,0" rel="stylesheet">
+<style>
+:root{
+  --night:#0A0F1E;
+  --night2:#111A2E;
+  --dusk:#1B2740;
+  --dusk2:#24314F;
+  --mist:#8E9BC0;
+  --amber:#FFB454;
+  --amber-deep:#E89A3C;
+  --coral:#FF6B5A;
+  --moss:#7FBF9E;
+  --white:#FFFFFF;
+  --text-primary:#FFFFFF;
+  --text-secondary:var(--mist);
+  --text-inverse:#FFFFFF;
+  --bg-primary:var(--night);
+  --bg-secondary:var(--night2);
+  --surface:var(--dusk);
+  --amber-ink:#231404;
+  --divider:rgba(255,255,255,0.07);
+  --hairline:rgba(255,255,255,0.08);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  margin:0;
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:#05070d;
+  color:var(--text-primary);
+  display:flex;
+  justify-content:center;
+  min-height:100vh;
+}
+.material-symbols-outlined{
+  font-variation-settings:'opsz' 24,'wght' 500,'FILL' 0,'GRAD' 0;
+  font-size:22px;
+  line-height:1;
+  vertical-align:middle;
+  user-select:none;
+}
+#device{
+  width:100%;
+  max-width:460px;
+  min-height:100vh;
+  background:var(--bg-primary);
+  position:relative;
+  overflow-x:hidden;
+  box-shadow:0 0 60px rgba(0,0,0,0.6);
+  display:flex;
+  flex-direction:column;
+}
+@media (min-width:520px){
+  body{ padding:24px 0; }
+  #device{ min-height:calc(100vh - 48px); border-radius:28px; overflow:hidden; }
+}
+button{font-family:inherit;}
+.btn{
+  border:none;
+  cursor:pointer;
+  border-radius:14px;
+  font-weight:700;
+  font-size:15px;
+  padding:14px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  transition:transform .12s ease, opacity .12s ease;
+}
+.btn:active{ transform:scale(0.97); }
+.btn-amber{ background:var(--amber); color:var(--amber-ink); }
+.btn-coral{ background:var(--coral); color:var(--text-inverse); }
+.btn-moss{ background:var(--moss); color:var(--text-inverse); }
+.btn-ghost{ background:rgba(255,255,255,0.06); color:var(--text-primary); border:1px solid rgba(255,255,255,0.12); }
+.btn-outline{ background:transparent; color:var(--text-primary); border:1px solid rgba(255,255,255,0.25); border-radius:8px; padding:8px 14px; font-size:16px; }
+.btn-block{ width:100%; }
+.screen{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+  background:var(--bg-primary);
+  animation:fadein .18s ease;
+}
+@keyframes fadein{ from{opacity:0} to{opacity:1} }
+.pad{ padding:16px; }
+.pad24{ padding:24px; }
+.row{ display:flex; align-items:center; }
+.row-between{ display:flex; align-items:center; justify-content:space-between; }
+.col{ display:flex; flex-direction:column; }
+.grow{ flex:1; }
+.icon-btn{
+  width:36px; height:36px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:transparent; border:none; color:var(--text-primary); cursor:pointer;
+}
+.icon-btn:active{ background:rgba(255,255,255,0.08); }
+.header-row{ padding:16px; display:flex; align-items:center; gap:8px; }
+.header-title{ font-size:17px; font-weight:600; }
+.card{
+  background:var(--surface);
+  border-radius:14px;
+  padding:16px;
+}
+.label-small{
+  font-size:11px; font-weight:500; color:var(--text-secondary); letter-spacing:0.4px;
+}
+.divider{ height:1px; background:var(--divider); border:none; margin:0; }
+.chip{
+  padding:8px 14px; border-radius:20px; font-size:12.5px; font-weight:600;
+  background:rgba(255,255,255,0.06); color:var(--text-secondary); border:none; cursor:pointer;
+}
+.chip.selected{ background:var(--white); color:var(--night); }
+.switch{
+  width:44px; height:26px; border-radius:14px; background:rgba(255,255,255,0.15);
+  position:relative; cursor:pointer; border:none; flex-shrink:0; transition:background .15s ease;
+}
+.switch.on{ background:var(--moss); }
+.switch .knob{
+  position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:var(--white);
+  transition:left .15s ease; box-shadow:0 1px 3px rgba(0,0,0,0.4);
+}
+.switch.on .knob{ left:21px; }
+.slider{
+  -webkit-appearance:none; appearance:none; width:100%; height:5px; border-radius:4px;
+  background:rgba(255,255,255,0.12); outline:none; margin-top:12px;
+}
+.slider::-webkit-slider-thumb{
+  -webkit-appearance:none; width:20px; height:20px; border-radius:50%; background:var(--white);
+  cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,0.5);
+}
+.slider::-moz-range-thumb{
+  width:20px; height:20px; border-radius:50%; background:var(--white); border:none; cursor:pointer;
+}
+.slider::-webkit-slider-runnable-track{ background:linear-gradient(to right, var(--amber) 0%, var(--amber) var(--fill,16%), rgba(255,255,255,0.12) var(--fill,16%)); border-radius:4px; height:5px; }
+.badge{
+  font-size:10.5px; font-weight:700; padding:4px 10px; border-radius:9px;
+}
+.scroll{ overflow-y:auto; -webkit-overflow-scrolling:touch; }
+a{ color:inherit; text-decoration:none; }
+
+/* ---------- Splash ---------- */
+.splash-bg{
+  position:absolute; inset:0;
+  background:radial-gradient(circle at 50% 32%, #2A3B63 0%, var(--night) 65%);
+}
+.splash-paw{
+  position:absolute; color:rgba(255,180,84,0.15); font-size:40px; transform:rotate(35deg);
+}
+.splash-wrap{ position:relative; flex:1; display:flex; flex-direction:column; }
+.splash-slides{ flex:1; display:flex; overflow:hidden; }
+.splash-slide{
+  min-width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:0 26px; text-align:center; transition:transform .4s ease;
+}
+.splash-glow{
+  width:180px; height:180px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  background:radial-gradient(circle, rgba(255,180,84,0.45) 0%, transparent 70%);
+  margin-bottom:28px;
+}
+.splash-glow .material-symbols-outlined{ font-size:76px; color:var(--amber); }
+.splash-title{ font-size:24px; font-weight:700; line-height:1.35; max-width:300px; }
+.splash-bottom{ display:flex; flex-direction:column; align-items:center; padding:0 26px 48px; gap:24px; }
+.dots{ display:flex; gap:6px; }
+.dot{ height:5px; width:5px; border-radius:3px; background:rgba(255,255,255,0.2); transition:width .2s ease, background .2s ease; }
+.dot.active{ width:16px; background:var(--amber); }
+
+/* ---------- Login ---------- */
+.login-icon-glow{
+  width:120px; height:120px; border-radius:50%; margin:60px auto 24px;
+  background:radial-gradient(circle, rgba(255,180,84,0.35) 0%, transparent 70%);
+  display:flex; align-items:center; justify-content:center;
+}
+.login-icon-glow .material-symbols-outlined{ font-size:56px; color:var(--amber); }
+.upload-box{
+  border:3px dashed rgba(142,155,192,0.4); border-radius:16px; padding:24px; text-align:center;
+  cursor:pointer; margin-top:24px;
+}
+.upload-box.uploaded{ border-color:var(--moss); border-style:dashed; }
+.upload-circle{
+  width:52px; height:52px; border-radius:50%; margin:0 auto 14px;
+  background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center;
+}
+.upload-circle .material-symbols-outlined{ font-size:28px; color:var(--amber); }
+.upload-box.uploaded .upload-circle{ background:rgba(127,191,158,0.15); }
+.upload-box.uploaded .upload-circle .material-symbols-outlined{ color:var(--moss); }
+
+/* ---------- QR / Scanner ---------- */
+.scan-box{
+  width:220px; height:220px; margin:0 auto; border-radius:16px;
+  background:rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center;
+  border:6px dashed rgba(255,180,84,0.6);
+}
+.scan-box.verified{ border-color:var(--moss); }
+
+/* ---------- Permissions ---------- */
+.perm-icon{
+  width:38px; height:38px; border-radius:11px; background:#FFF3E1; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.perm-icon .material-symbols-outlined{ color:var(--amber-deep); font-size:20px; }
+
+/* ---------- Bottom Nav ---------- */
+.bottom-nav{
+  display:flex; background:var(--surface); border-top:1px solid rgba(255,255,255,0.05);
+  padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+  position:sticky; bottom:0; z-index:20;
+}
+.nav-item{
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 0;
+  background:none; border:none; color:var(--mist); cursor:pointer;
+}
+.nav-item .material-symbols-outlined{ font-size:22px; }
+.nav-item span.label{ font-size:10.5px; font-weight:600; }
+.nav-item.active{ color:var(--white); }
+
+/* ---------- Home / Map ---------- */
+.home-banner{
+  margin:0 16px 16px; padding:12px; border-radius:14px; display:flex; align-items:center; gap:8px;
+  background:linear-gradient(90deg, var(--coral), #FF8A71); font-size:12px; font-weight:500;
+}
+.map-area{
+  margin:0 16px 16px; flex:1; border-radius:18px; position:relative; overflow:hidden;
+  background:linear-gradient(135deg, var(--dusk), var(--night)); min-height:340px;
+}
+.map-line{
+  position:absolute; inset:0;
+  background-image:repeating-linear-gradient(115deg, transparent 0 14px, rgba(255,255,255,0.18) 14px 16px);
+  clip-path:polygon(0 20%,100% 78%,100% 82%,0 24%);
+}
+.blob{ position:absolute; border-radius:50%; filter:blur(2px); animation:pulse 1.6s ease-in-out infinite alternate; }
+@keyframes pulse{ from{ transform:scale(0.88); } to{ transform:scale(1.14); } }
+.map-legend{
+  position:absolute; left:16px; bottom:16px; background:rgba(10,15,30,0.6); border-radius:8px; padding:6px 10px; font-size:10px;
+}
+.legend-dot{ width:6px; height:6px; border-radius:50%; display:inline-block; margin-right:3px; }
+.speed-badge{
+  position:absolute; top:16px; left:16px; width:48px; height:48px; border-radius:8px; background:var(--white);
+  border:1.5px solid #000; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#000;
+}
+.speed-badge b{ font-size:8px; line-height:1; letter-spacing:0.3px; }
+.speed-badge .num{ font-size:18px; font-weight:700; line-height:1.1; }
+.risk-overlay{
+  position:absolute; top:16px; left:32px; right:32px; background:rgba(255,107,90,0.95); border-radius:12px; padding:12px;
+  display:flex; align-items:center; gap:12px; cursor:pointer;
+}
+.risk-overlay .material-symbols-outlined{ font-size:24px; }
+.route-fab{
+  position:absolute; left:16px; bottom:16px; width:46px; height:46px; border-radius:12px; background:var(--night);
+  border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+.route-fab .material-symbols-outlined{ color:var(--amber); }
+.sos-fab{
+  position:absolute; right:16px; bottom:80px; background:var(--coral); color:var(--text-inverse); border:none;
+  border-radius:24px; padding:14px 18px; display:flex; align-items:center; gap:8px; font-weight:700; font-size:13px; cursor:pointer;
+}
+.report-fab{
+  position:absolute; right:16px; bottom:16px; width:56px; height:56px; border-radius:50%; background:var(--amber);
+  color:var(--amber-ink); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+.route-plan-card{
+  position:absolute; inset:16px; margin:auto; height:fit-content; background:rgba(27,39,64,0.97); border-radius:14px; padding:16px; top:8%;
+}
+.route-option{
+  border-radius:10px; padding:12px; cursor:pointer; margin-bottom:8px; border:1px solid transparent;
+}
+.route-option .material-symbols-outlined{ font-size:16px; }
+
+/* ---------- Report sighting ---------- */
+.species-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.species-item{
+  padding:12px 4px; text-align:center; border-radius:12px; font-size:12px; cursor:pointer;
+  background:var(--surface); border:1px solid #2a3550; color:var(--text-secondary);
+}
+.species-item.selected{ background:var(--night); border-color:var(--night); color:var(--white); box-shadow:inset 0 0 0 1px rgba(255,255,255,0.15); }
+.counter-btn{
+  width:38px; height:38px; border-radius:8px; border:1px solid rgba(255,255,255,0.25); background:transparent;
+  color:var(--text-primary); font-size:18px; cursor:pointer;
+}
+.photo-slot{
+  height:80px; border-radius:12px; background:var(--surface); border:1.5px solid #444f6c;
+  display:flex; align-items:center; justify-content:center; color:var(--text-secondary); font-size:12px; margin-top:8px;
+}
+.pin-row{
+  border-radius:12px; background:var(--surface); border:1px solid #2a3550; padding:12px; display:flex; align-items:center; gap:8px; margin-top:16px; font-size:12px;
+}
+
+/* ---------- Active Alert modal ---------- */
+.alert-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; z-index:60; padding:24px;
+}
+.alert-modal{
+  width:100%; max-width:380px; border-radius:24px; padding:32px;
+  background:radial-gradient(circle at 50% 20%, #4A2A22, #2A140F);
+  text-align:center;
+}
+.alert-eyebrow{ color:var(--coral); font-weight:700; letter-spacing:1px; font-size:12px; }
+.alert-icon-glow{
+  width:80px; height:80px; margin:16px auto; border-radius:50%;
+  background:radial-gradient(circle, rgba(255,107,90,0.4), transparent 70%);
+  display:flex; align-items:center; justify-content:center;
+}
+.alert-icon-glow .material-symbols-outlined{ font-size:36px; }
+.alert-distance{ font-size:56px; font-weight:700; }
+.alert-distance small{ font-size:22px; font-weight:400; }
+
+/* ---------- Sighting detail / timeline ---------- */
+.detail-hero{ height:200px; background:linear-gradient(135deg, var(--dusk), var(--night)); position:relative; }
+.detail-hero .icon-btn{ position:absolute; top:16px; left:16px; background:rgba(0,0,0,0.3); }
+.timeline-row{ display:flex; gap:12px; margin-bottom:16px; }
+.timeline-dot{ width:12px; height:12px; border-radius:50%; background:var(--moss); margin-top:4px; flex-shrink:0; }
+.timeline-dot.muted{ background:#3a4562; }
+
+/* ---------- Profile ---------- */
+.avatar-square{
+  width:64px; height:64px; border-radius:16px; background:var(--night); display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:24px; color:var(--amber);
+}
+.stat-card{ flex:1; background:var(--surface); border-radius:10px; padding:12px; text-align:center; }
+.stat-card b{ font-size:20px; display:block; }
+.stat-card span{ font-size:10px; color:var(--text-secondary); }
+.progress-track{ height:8px; border-radius:4px; background:rgba(255,255,255,0.1); overflow:hidden; margin-top:12px; }
+.progress-fill{ height:100%; background:var(--moss); border-radius:4px; }
+.badge-card{ flex:1; background:var(--surface); border-radius:10px; padding:12px; text-align:center; }
+.badge-card .material-symbols-outlined{ color:var(--amber-deep); }
+.badge-card span{ display:block; margin-top:8px; font-size:10px; color:#c7cde0; }
+
+/* ---------- SOS ---------- */
+.gps-badge{ background:#E3E7F0; color:#0A0F1E; border-radius:8px; padding:12px; display:flex; gap:8px; align-items:center; }
+.dispatch-card{ background:var(--coral); border-radius:14px; padding:16px; display:flex; align-items:center; gap:16px; cursor:pointer; }
+.dispatch-icon{ width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.22); display:flex; align-items:center; justify-content:center; }
+.identify-box{
+  border:1.5px solid #444f6c; border-radius:14px; padding:24px; text-align:center; margin-top:8px; cursor:pointer; background:var(--surface);
+}
+.identify-box .material-symbols-outlined{ font-size:36px; color:var(--amber-deep); }
+.identify-result{ display:flex; align-items:center; gap:16px; padding:16px; background:var(--surface); border-radius:12px; margin-top:8px; }
+.identify-result img{ width:56px; height:56px; border-radius:10px; object-fit:cover; }
+.spinner{
+  width:20px; height:20px; border:2.5px solid rgba(255,180,84,0.3); border-top-color:var(--amber); border-radius:50%;
+  animation:spin .7s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg); } }
+.severity-grid{ display:flex; gap:8px; margin-top:8px; }
+.severity-item{ flex:1; text-align:center; padding:12px 4px; border-radius:11px; font-size:12px; cursor:pointer; background:var(--surface); border:1px solid #2a3550; color:var(--text-secondary); }
+.severity-item.selected{ background:var(--coral); border-color:var(--coral); color:var(--white); }
+
+/* ---------- Dashboard / Planner ---------- */
+.dash-header{ display:flex; align-items:center; gap:8px; padding:24px 24px 16px; }
+.dash-header .material-symbols-outlined{ color:var(--amber); font-size:19px; }
+.dash-tabs{ display:flex; gap:22px; padding:0 24px; overflow-x:auto; border-bottom:1px solid var(--hairline); scrollbar-width:none; }
+.dash-tabs::-webkit-scrollbar{ display:none; }
+.dash-tab{ background:none; border:none; color:var(--mist); padding:10px 0 14px; font-size:13px; white-space:nowrap; cursor:pointer; border-bottom:2px solid transparent; }
+.dash-tab.active{ color:var(--white); font-weight:700; border-color:var(--amber); }
+.dash-panel-title{ padding:20px 24px 8px; }
+.dash-panel-title h2{ margin:0 0 2px; font-size:18px; }
+.dash-panel-title p{ margin:0; color:var(--mist); font-size:12px; }
+.kpi-row{ display:flex; gap:12px; padding:0 24px; margin-bottom:12px; }
+.kpi-card{ flex:1; background:var(--surface); border-radius:16px; padding:18px; }
+.kpi-card .val{ font-size:24px; font-weight:700; }
+.kpi-card .trend{ color:var(--moss); font-size:10.5px; font-weight:700; margin-left:4px; }
+.kpi-card .lbl{ font-size:11.5px; color:var(--mist); margin-top:4px; }
+.dash-card{ margin:0 24px 16px; background:var(--surface); border-radius:16px; padding:18px; }
+.species-bar-row{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+.species-bar-row .name{ width:60px; font-size:11.5px; color:var(--mist); }
+.bar-track{ flex:1; height:8px; border-radius:4px; background:rgba(255,255,255,0.08); overflow:hidden; }
+.bar-fill{ height:100%; background:var(--amber); border-radius:4px; }
+.bar-track.thin{ height:6px; }
+.filter-row{ display:flex; gap:8px; padding:8px 24px; }
+.filter-pill{ background:var(--surface); color:var(--mist); font-size:11.5px; padding:8px 14px; border-radius:10px; }
+.report-table{ padding:0 24px; }
+.report-table-head{ display:flex; padding-bottom:10px; color:var(--mist); font-size:11px; }
+.report-table-head span{ flex:1; }
+.report-row{ display:flex; align-items:center; padding:12px 0; }
+.report-row span{ flex:1; font-size:12.5px; }
+.corridor-card{ margin:0 24px 16px; background:var(--surface); border-radius:16px; padding:18px; }
+.propose-card{ margin:0 24px 16px; background:var(--surface); border-radius:16px; padding:24px; text-align:center; color:var(--mist); cursor:pointer; }
+.rescue-card{ margin:0 24px 10px; background:var(--surface); border-radius:14px; padding:16px; display:flex; align-items:center; gap:10px; }
+.rescue-icon{ width:34px; height:34px; border-radius:10px; background:rgba(255,107,90,0.16); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.rescue-icon .material-symbols-outlined{ color:var(--coral); font-size:18px; }
+.partner-card{ margin:0 24px 12px; background:var(--surface); border-radius:16px; padding:16px; }
+.status-dot{ width:6px; height:6px; border-radius:50%; margin-right:5px; display:inline-block; }
+.team-row{ display:flex; align-items:center; gap:12px; background:var(--surface); border-radius:14px; padding:12px 16px; margin-bottom:10px; }
+.team-avatar{ width:38px; height:38px; border-radius:11px; background:var(--night); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:var(--amber); flex-shrink:0; }
+.invite-row{ margin:0 24px 24px; display:flex; align-items:center; gap:10px; background:var(--surface); border-radius:14px; padding:16px; }
+.pull-hint{ text-align:center; font-size:11px; color:var(--mist); padding:6px 0; height:18px; }
+.refresh-btn{ background:none; border:none; color:var(--mist); cursor:pointer; margin-left:auto; padding:0 24px 0 0; }
+</style>
+</head>
+<body>
+<div id="device"><div id="app"></div></div>
+
+<script>
+/* ============================================================
+   CritterCross — Web App
+   Ported from the original Android/Jetpack Compose application.
+   Same screens, same flow, same visual language — browser-based.
+   ============================================================ */
+
+const state = {
+  route: 'splash',
+  history: [],
+  speedLimit: null,
+  splash: { page: 0 },
+  login: { authenticating: false, docUploaded: false },
+  mainTab: 0, // 0 Map 1 Alerts 2 History 3 Profile 4 Planner
+  home: { highRisk: true, planning: false, selectedRoute: 1, spoken:false },
+  activeAlert: { showDialog: true },
+  report: { species: 'Deer', count: 4 },
+  sos: { imageData: null, uploading:false, result:null, severity:"Can't move" },
+  dashboard: { tab: 0, refreshing:false },
+  settings: {
+    radius: 0.8,
+    pushAlerts:true, customSounds:true, voiceAlerts:true, weeklySummary:false,
+    largeMammals:true, amphibians:false
+  }
+};
+
+let splashTimer = null, alertTimer = null;
+
+function speak(text){
+  try{
+    if('speechSynthesis' in window){
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 1; speechSynthesis.speak(u);
+    }
+  }catch(e){}
+}
+
+/* ---------- navigation helpers ---------- */
+function navigate(route){ state.history.push(state.route); state.route = route; render(); }
+function navigateRoot(route){ state.history = []; state.route = route; render(); }
+function goBack(){ state.route = state.history.pop() || 'splash'; render(); }
+function setMainTab(i){ state.mainTab = i; render(); }
+
+/* ================= SPLASH ================= */
+const splashSlides = [
+  "Live wildlife alerts for roads that you actually drive.",
+  "Protect nature and wildlife with small steps."
+];
+function renderSplash(){
+  clearTimeout(splashTimer);
+  if(state.splash.page < 1){
+    splashTimer = setTimeout(()=>{ state.splash.page = 1; render(); }, 3000);
+  }
+  const paws = [[15,85],[35,70],[55,55],[75,40],[95,25]].map(([x,y],i)=>
+    `<span class="splash-paw material-symbols-outlined" style="left:${x}%;top:${y}%;animation:pawfade 3.6s ${i*0.5}s ease-in-out infinite;">pets</span>`
+  ).join('');
+  const slide = splashSlides[state.splash.page];
+  return `
+  <div class="screen" style="justify-content:flex-end;">
+    <div class="splash-bg"></div>
+    ${paws}
+    <div class="splash-wrap">
+      <div class="splash-slides">
+        <div class="splash-slide">
+          <div class="splash-glow"><span class="material-symbols-outlined">pets</span></div>
+          <div class="splash-title">${slide}</div>
+        </div>
+      </div>
+      <div class="splash-bottom">
+        ${state.splash.page===1
+          ? `<button class="btn btn-amber" onclick="navigateRoot('login')">Get started</button>`
+          : `<div style="height:48px;"></div>`}
+        <div class="dots">
+          <div class="dot ${state.splash.page===0?'active':''}"></div>
+          <div class="dot ${state.splash.page===1?'active':''}"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <style>@keyframes pawfade{0%{opacity:0}20%{opacity:1}55%{opacity:1}75%{opacity:0}100%{opacity:0}}</style>`;
+}
+
+/* ================= LOGIN ================= */
+function loginWithGoogle(){
+  state.login.authenticating = true; render();
+  setTimeout(()=>{ state.login.authenticating = false; navigateRoot('permissions'); }, 1000);
+}
+function toggleDocUpload(){ state.login.docUploaded = true; render(); }
+function renderLogin(){
+  const up = state.login.docUploaded;
+  return `
+  <div class="screen scroll pad24" style="align-items:center;text-align:center;">
+    <div class="login-icon-glow"><span class="material-symbols-outlined">pets</span></div>
+    <h1 style="margin:0 0 6px;font-size:32px;font-weight:700;">CritterCross</h1>
+    <p style="margin:0 0 6px;font-size:18px;font-weight:600;">Welcome to the community</p>
+    <p style="margin:0 0 40px;color:var(--text-secondary);font-size:15px;">Sign in to join the community</p>
+
+    <button class="btn btn-ghost btn-block" style="background:var(--surface);height:54px;" onclick="loginWithGoogle()">
+      ${state.login.authenticating
+        ? `<span class="spinner"></span>`
+        : `<span class="material-symbols-outlined">mail</span> Sign in with Google account`}
+    </button>
+
+    <hr class="divider" style="width:100%;margin:40px 0 32px;">
+    <p style="margin:0 0 10px;font-weight:700;font-size:17px;">Verification (Optional)</p>
+    <p style="margin:0 0 0;color:var(--text-secondary);font-size:13px;line-height:1.5;padding:0 16px;">
+      Upload a govt approved document to get verified as a genuine user.
+    </p>
+
+    <div class="upload-box ${up?'uploaded':''}" style="width:100%;" onclick="document.getElementById('docInput').click()">
+      <div class="upload-circle"><span class="material-symbols-outlined">${up?'check_circle':'cloud_upload'}</span></div>
+      <p style="margin:0;font-size:14px;font-weight:500;color:${up?'var(--moss)':'var(--text-secondary)'};">
+        ${up?'Document uploaded. Tap to change.':'Tap to browse files'}
+      </p>
+      ${up?'':'<p style="margin:4px 0 0;font-size:12px;color:rgba(142,155,192,0.6);">PDF, JPG, PNG (Max 5MB)</p>'}
+    </div>
+    <input type="file" id="docInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="toggleDocUpload()">
+  </div>`;
+}
+
+/* ================= QR SCANNER ================= */
+function simulateScan(){ state.speedLimit = 25; render(); }
+function renderQr(){
+  const verified = state.speedLimit !== null;
+  return `
+  <div class="screen pad24" style="align-items:center;text-align:center;justify-content:center;">
+    <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;">Check-Post Verification</h1>
+    <p style="margin:0 0 32px;color:var(--text-secondary);font-size:14px;">
+      Scan the QR code at the forest check-post to register your entry and sync local speed limits.
+    </p>
+    <div class="scan-box ${verified?'verified':''}">
+      ${verified ? `
+        <div>
+          <span class="material-symbols-outlined" style="font-size:64px;color:var(--moss);">check_circle</span>
+          <p style="margin:8px 0 0;font-weight:700;font-size:20px;color:var(--moss);">Verified!</p>
+          <p style="margin:0;font-size:14px;">Speed Limit: ${state.speedLimit} mph</p>
+        </div>` : `
+        <div>
+          <span class="material-symbols-outlined" style="font-size:80px;color:var(--mist);">qr_code_scanner</span>
+          <div style="height:16px;"></div>
+          <button class="btn" style="background:rgba(255,180,84,0.2);color:var(--amber);font-size:12px;padding:10px 16px;" onclick="simulateScan()">Simulate Scan (Demo)</button>
+        </div>`}
+    </div>
+    <div style="height:48px;"></div>
+    <button class="btn btn-amber btn-block" onclick="navigateRoot('main')">Continue to App</button>
+  </div>`;
+}
+
+/* ================= PERMISSIONS ================= */
+function allowPermissions(){
+  const finish = ()=> navigateRoot('qr');
+  if('geolocation' in navigator){
+    navigator.geolocation.getCurrentPosition(()=>finish(), ()=>finish(), {timeout:2000});
+  } else finish();
+  if('Notification' in window && Notification.permission === 'default'){
+    Notification.requestPermission().catch(()=>{});
+  }
+  setTimeout(finish, 1200);
+}
+function renderPermissions(){
+  return `
+  <div class="screen pad24">
+    <div style="height:40px;"></div>
+    <h2 style="margin:0;font-size:20px;">See what's near your route</h2>
+    <p style="margin:4px 0 24px;color:var(--text-secondary);font-size:12px;">Two quick permissions and you're set.</p>
+    <div class="card row" style="gap:12px;margin-bottom:12px;">
+      <div class="perm-icon"><span class="material-symbols-outlined">location_on</span></div>
+      <div><b>Location</b><p style="margin:2px 0 0;color:var(--text-secondary);font-size:12px;">Used only while driving to trigger nearby alerts.</p></div>
+    </div>
+    <div class="card row" style="gap:12px;">
+      <div class="perm-icon"><span class="material-symbols-outlined">notifications</span></div>
+      <div><b>Notifications</b><p style="margin:2px 0 0;color:var(--text-secondary);font-size:12px;">Get a warning before you reach a crossing zone.</p></div>
+    </div>
+    <div class="grow"></div>
+    <button class="btn btn-amber btn-block" onclick="allowPermissions()">Allow &amp; continue</button>
+  </div>`;
+}
+
+/* ================= MAIN TABS (Map / Alerts / History / Profile / Planner) ================= */
+const NAV_ITEMS = [
+  {icon:'map', label:'Map'},
+  {icon:'notifications', label:'Alerts'},
+  {icon:'history', label:'History'},
+  {icon:'person', label:'Profile'},
+  {icon:'dashboard', label:'Planner'}
+];
+function renderMain(){
+  const tabRenderers = [renderHome, renderActiveAlertTab, renderHistory, renderProfile, renderDashboard];
+  const content = tabRenderers[state.mainTab]();
+  const navHtml = NAV_ITEMS.map((n,i)=>`
+    <button class="nav-item ${state.mainTab===i?'active':''}" onclick="setMainTab(${i})">
+      <span class="material-symbols-outlined">${n.icon}</span>
+      <span class="label">${n.label}</span>
+    </button>`).join('');
+  return `
+  <div class="screen" style="padding:0;">
+    <div class="grow col" style="min-height:0;">${content}</div>
+    <div class="bottom-nav">${navHtml}</div>
+  </div>`;
+}
+
+/* ---- Home / Map ---- */
+function dismissHighRisk(){ state.home.highRisk = false; render(); }
+function openRoutePlanner(){
+  state.home.planning = true; state.home.selectedRoute = 1; render();
+  setTimeout(()=>speak('Multiple high risk wildlife zones detected. Suggesting alternative route.'), 500);
+}
+function closeRoutePlanner(){ state.home.planning = false; render(); }
+function selectRoute(i){ state.home.selectedRoute = i; render(); }
+function startRoute(){
+  const primary = state.home.selectedRoute === 0;
+  state.home.planning = false;
+  state.home.highRisk = primary;
+  render();
+  if(primary) setTimeout(()=>speak('Entering High-Risk Zone. Reduce speed to 25 miles per hour.'), 300);
+}
+function renderHome(){
+  const sp = state.speedLimit;
+  if(state.home.highRisk && !state.home._spokenOnce){
+    state.home._spokenOnce = true;
+    setTimeout(()=>speak('Entering High-Risk Zone. Reduce speed to 25 miles per hour.'), 400);
+  }
+  return `
+  <div class="col grow" style="min-height:0;">
+    <div class="row-between pad" style="padding-bottom:0;">
+      <div>
+        <div style="font-size:16px;font-weight:600;">Good evening</div>
+        <div style="font-size:12px;color:var(--text-secondary);">Maya · Portland, OR</div>
+      </div>
+      <div style="position:relative;">
+        <button class="icon-btn" onclick="navigate('settings')"><span class="material-symbols-outlined">settings</span></button>
+        <span style="position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:var(--coral);"></span>
+      </div>
+    </div>
+    <div class="home-banner">
+      <span class="material-symbols-outlined" style="font-size:16px;">warning</span>
+      2 active sightings on your route home
+    </div>
+    <div class="map-area">
+      <div class="map-line"></div>
+      <div class="blob" style="left:22%;top:32%;width:120px;height:120px;background:radial-gradient(circle, rgba(255,107,90,0.6), transparent 70%);"></div>
+      <div class="blob" style="right:20%;top:52%;width:90px;height:90px;background:radial-gradient(circle, rgba(255,180,84,0.55), transparent 70%); animation-delay:.3s;"></div>
+      <div class="blob" style="left:10%;bottom:14%;width:100px;height:100px;background:radial-gradient(circle, rgba(255,107,90,0.45), transparent 70%); animation-delay:.6s;"></div>
+      <div class="blob" style="right:8%;top:14%;width:80px;height:80px;background:radial-gradient(circle, rgba(127,191,158,0.5), transparent 70%); animation-delay:.9s;"></div>
+
+      <div class="map-legend">
+        <div>Live crowdsourced heatmap</div>
+        <div style="margin-top:4px;">
+          <span class="legend-dot" style="background:var(--coral);"></span>High
+          <span class="legend-dot" style="background:var(--amber);margin-left:6px;"></span>Med
+          <span class="legend-dot" style="background:var(--moss);margin-left:6px;"></span>Low
+        </div>
+      </div>
+
+      ${state.home.highRisk ? `
+      <div class="risk-overlay" onclick="dismissHighRisk()">
+        <span class="material-symbols-outlined">warning</span>
+        <div>
+          <div style="font-weight:700;font-size:13px;">Entering High-Risk Zone</div>
+          <div style="font-size:11px;opacity:0.9;">Reduce speed to 25mph. Scan road edges.</div>
+        </div>
+      </div>` : ''}
+
+      ${state.home.planning ? renderRoutePlanCard() : `
+      <button class="route-fab" onclick="openRoutePlanner()"><span class="material-symbols-outlined">map</span></button>`}
+
+      ${sp !== null ? `
+      <div class="speed-badge"><b>SPEED</b><b>LIMIT</b><span class="num">${sp}</span></div>` : ''}
+
+      <button class="sos-fab" onclick="navigate('sos')"><span class="material-symbols-outlined">warning</span>Emergency SOS</button>
+      <button class="report-fab" onclick="navigate('reportSighting')"><span class="material-symbols-outlined">add</span></button>
+    </div>
+  </div>`;
+}
+function renderRoutePlanCard(){
+  const sel = state.home.selectedRoute;
+  return `
+  <div class="route-plan-card">
+    <div class="row-between" style="margin-bottom:16px;">
+      <div style="font-weight:700;font-size:16px;">Route Plan Summary</div>
+      <span class="material-symbols-outlined" style="cursor:pointer;color:var(--mist);" onclick="closeRoutePlanner()">close</span>
+    </div>
+    <div class="route-option" style="background:${sel===0?'var(--night)':'rgba(10,15,30,0.3)'}; border-color:${sel===0?'var(--coral)':'transparent'};" onclick="selectRoute(0)">
+      <div class="row" style="gap:8px;">
+        <span class="material-symbols-outlined" style="color:var(--coral);">timeline</span>
+        <b style="font-size:13px;">Primary Route (14 miles, 32 min)</b>
+      </div>
+      <div style="margin-top:6px;font-size:11px;font-weight:600;color:var(--coral);">2 High-Activity Zones Detected</div>
+    </div>
+    <div class="route-option" style="background:${sel===1?'rgba(127,191,158,0.15)':'rgba(10,15,30,0.3)'}; border-color:${sel===1?'var(--moss)':'transparent'};" onclick="selectRoute(1)">
+      <div class="row-between">
+        <div class="row" style="gap:8px;">
+          <span class="material-symbols-outlined" style="color:var(--moss);">alt_route</span>
+          <b style="font-size:13px;">Alternative Route (16.5 miles, 36 min)</b>
+        </div>
+        <span class="badge" style="background:var(--moss);color:var(--text-inverse);">Safer</span>
+      </div>
+      <div style="margin-top:6px;font-size:11px;color:var(--mist);">Avoids Elk crossing &amp; recent sightings</div>
+    </div>
+    <div style="margin:16px 0;">
+      ${sel===0 ? `
+        <div style="font-size:12px;color:var(--mist);margin-bottom:8px;">High-Activity Zones Ahead:</div>
+        <div class="row" style="gap:8px;margin-bottom:6px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--coral);"></span><span style="font-size:12px;">Mile 3-5 (Elk crossing, 80% active)</span></div>
+        <div class="row" style="gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--amber);"></span><span style="font-size:12px;">Mile 9 (Deer spotted 10m ago)</span></div>
+      ` : `
+        <div style="font-size:12px;color:var(--mist);margin-bottom:8px;">Route Details:</div>
+        <div class="row" style="gap:8px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--moss);">check_circle</span><span style="font-size:12px;">Clear of current high-risk warnings</span></div>
+      `}
+    </div>
+    <button class="btn btn-block ${sel===1?'btn-moss':'btn-coral'}" onclick="startRoute()">${sel===1?'Start Safer Route':'Start Primary Route (High Risk)'}</button>
+  </div>`;
+}
+
+/* ---- Report a Sighting ---- */
+function selectSpecies(s){ state.report.species = s; render(); }
+function reportCount(delta){ state.report.count = Math.max(1, state.report.count + delta); render(); }
+function submitSighting(){ navigateRoot('main'); }
+function renderReportSighting(){
+  const species = ['Deer','Elk','Turtle','Frog','Raccoon','Other'];
+  return `
+  <div class="screen scroll pad">
+    <div class="row" style="gap:8px;">
+      <button class="icon-btn" onclick="goBack()"><span class="material-symbols-outlined">arrow_back</span></button>
+      <div class="header-title">Report a sighting</div>
+    </div>
+    <div style="height:16px;"></div>
+    <div class="label-small">Species</div>
+    <div style="height:8px;"></div>
+    <div class="species-grid">
+      ${species.map(s=>`<div class="species-item ${s===state.report.species?'selected':''}" onclick="selectSpecies('${s}')">${s}</div>`).join('')}
+    </div>
+    <div style="height:24px;"></div>
+    <div class="label-small">How many</div>
+    <div class="row" style="gap:16px;margin-top:8px;">
+      <button class="counter-btn" onclick="reportCount(-1)">-</button>
+      <div style="font-size:22px;font-weight:600;">${state.report.count}</div>
+      <button class="counter-btn" onclick="reportCount(1)">+</button>
+    </div>
+    <div style="height:24px;"></div>
+    <div class="label-small">Photo (optional)</div>
+    <div class="photo-slot">Tap to add a photo</div>
+    <div class="pin-row">
+      <span class="material-symbols-outlined" style="color:var(--amber-deep);font-size:16px;">location_on</span>
+      Pinned at your current location
+    </div>
+    <div class="grow"></div>
+    <div style="height:16px;"></div>
+    <button class="btn btn-amber btn-block" onclick="submitSighting()">Submit sighting</button>
+    <div style="height:16px;"></div>
+  </div>`;
+}
+
+/* ---- Active Alert (tab) ---- */
+function startAlertTimer(){
+  clearTimeout(alertTimer);
+  alertTimer = setTimeout(()=>{ state.activeAlert.showDialog = false; render(); }, 40000);
+}
+function simulateAlertAgain(){ state.activeAlert.showDialog = true; render(); startAlertTimer(); }
+function viewSafeRoute(){ state.activeAlert.showDialog = false; navigate('alertDetail'); }
+function renderActiveAlertTab(){
+  if(state.mainTab===1 && state.activeAlert.showDialog && !alertTimer) startAlertTimer();
+  const body = state.activeAlert.showDialog ? '' : `
+    <div class="col grow" style="align-items:center;justify-content:center;text-align:center;">
+      <span class="material-symbols-outlined" style="font-size:64px;color:var(--moss);">check_circle</span>
+      <p style="font-size:20px;font-weight:700;margin:16px 0 8px;">No Active Alerts</p>
+      <p style="margin:0 0 24px;color:var(--text-secondary);font-size:14px;">The route is clear.</p>
+      <button class="btn btn-coral" onclick="simulateAlertAgain()">Simulate Alert</button>
+    </div>`;
+  return `<div class="col grow" style="position:relative;">${body}
+    ${state.activeAlert.showDialog ? `
+    <div class="alert-overlay">
+      <div class="alert-modal">
+        <div class="alert-eyebrow">ACTIVE ALERT</div>
+        <div class="alert-icon-glow"><span class="material-symbols-outlined">warning</span></div>
+        <div style="font-size:20px;font-weight:600;">Deer herd crossing ahead</div>
+        <div class="alert-distance">0.4<small> mi</small></div>
+        <p style="color:#F0B8AE;font-size:14px;margin:8px 0 32px;">Reported 6 min ago · slow to 35 mph</p>
+        <button class="btn" style="background:rgba(255,255,255,0.15);color:#fff;width:100%;" onclick="viewSafeRoute()">View safe-route options</button>
+      </div>
+    </div>` : ''}
+  </div>`;
+}
+
+/* ---- Alert Detail ---- */
+function renderAlertDetail(){
+  const tips = [
+    "Ease off the gas — don't swerve hard to avoid an animal.",
+    "Deer travel in groups — expect more after the first one.",
+    "High beams help spot eye-shine early — use them if roads are clear."
+  ];
+  return `
+  <div class="screen scroll pad">
+    <div class="row" style="gap:8px;">
+      <button class="icon-btn" onclick="goBack()"><span class="material-symbols-outlined">arrow_back</span></button>
+      <div class="header-title">Why this alert</div>
+    </div>
+    <p style="margin:8px 0 24px;color:var(--text-secondary);font-size:12px;">3 reports in the last 40 minutes near Route 9</p>
+    ${tips.map(t=>`
+      <div class="row" style="gap:12px;margin-bottom:16px;align-items:flex-start;">
+        <div style="width:24px;height:24px;border-radius:50%;background:#E9F7F0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span class="material-symbols-outlined" style="font-size:16px;color:var(--moss);">check</span>
+        </div>
+        <span style="font-size:14px;color:#e7eaf3;">${t}</span>
+      </div>`).join('')}
+    <div class="card" style="background:linear-gradient(135deg, var(--dusk), var(--night));text-align:center;">
+      <span class="material-symbols-outlined" style="font-size:32px;color:var(--coral);">info</span>
+      <p style="font-weight:700;font-size:16px;margin:12px 0 8px;">Road Safety Alert</p>
+      <p style="margin:0;color:var(--text-secondary);font-size:13px;">Wildlife collisions happen most frequently at dawn and dusk. Always stay alert and leave enough space to brake safely.</p>
+    </div>
+  </div>`;
+}
+
+/* ---- Report History ---- */
+const REPORTS = [
+  { title:'Deer · 4 seen', sub:'Route 9 · Today, 6:12pm', status:'Verified' },
+  { title:'Frogs · 12 seen', sub:'Cedar Creek Rd · Yesterday', status:'Pending' },
+  { title:'Elk · 2 seen', sub:'Old Mill Bridge · Sep 6', status:'Verified' }
+];
+function renderHistory(){
+  return `
+  <div class="col grow pad" style="overflow-y:auto;">
+    <div class="header-title">My reports</div>
+    <div style="height:16px;"></div>
+    <div class="row" style="gap:8px;">
+      <button class="chip selected">All</button>
+      <button class="chip">Verified</button>
+      <button class="chip">Pending</button>
+    </div>
+    <div style="height:16px;"></div>
+    <div class="col" style="gap:8px;">
+      ${REPORTS.map(r=>`
+        <div class="card row" style="gap:12px;cursor:pointer;" onclick="navigate('sightingDetail')">
+          <div style="width:40px;height:40px;border-radius:10px;background:#FFF3E1;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span class="material-symbols-outlined" style="color:var(--amber-deep);">pets</span>
+          </div>
+          <div class="grow">
+            <div style="font-weight:700;font-size:14px;">${r.title}</div>
+            <div style="font-size:12px;color:var(--text-secondary);">${r.sub}</div>
+          </div>
+          <span class="badge" style="background:${r.status==='Verified'?'#E9F7F0':'#FFF3E1'};color:${r.status==='Verified'?'var(--moss)':'var(--amber-deep)'};">${r.status}</span>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+/* ---- Sighting Detail ---- */
+function renderSightingDetail(){
+  const events = [
+    ['Reported','By you, 6:12pm'],
+    ['Verified by 3 nearby drivers','6:15pm'],
+    ['Alert sent to 28 drivers','6:16pm'],
+    ['Zone cleared','Auto-expires 7:00pm']
+  ];
+  return `
+  <div class="screen scroll">
+    <div class="detail-hero">
+      <button class="icon-btn" onclick="goBack()"><span class="material-symbols-outlined">arrow_back</span></button>
+    </div>
+    <div class="pad">
+      <h2 style="margin:0 0 4px;font-size:20px;">Deer · 4 seen</h2>
+      <p style="margin:0 0 24px;color:var(--text-secondary);font-size:14px;">Route 9, Mile 14 · Today, 6:12pm</p>
+      ${events.map((e,i)=>`
+        <div class="timeline-row">
+          <div class="timeline-dot ${i===3?'muted':''}"></div>
+          <div><div style="font-weight:700;font-size:14px;">${e[0]}</div><div style="font-size:12px;color:var(--text-secondary);">${e[1]}</div></div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+/* ---- Profile ---- */
+function renderProfile(){
+  const stats = [['38','Reports'],['12','Day streak'],['91%','Verified']];
+  return `
+  <div class="col grow pad" style="overflow-y:auto;">
+    <div class="avatar-square">M</div>
+    <div style="height:16px;"></div>
+    <h2 style="margin:0;font-size:20px;">Maya Torres</h2>
+    <p style="margin:0;color:var(--text-secondary);font-size:12px;">Scout · joined Feb 2026</p>
+    <div class="row" style="gap:8px;margin:24px 0;">
+      ${stats.map(([v,l])=>`<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join('')}
+    </div>
+    <div class="card" style="background:var(--night);margin-bottom:24px;">
+      <div style="color:var(--amber);font-size:24px;font-weight:700;">~6 collisions</div>
+      <div style="color:var(--text-secondary);font-size:12px;">estimated prevented from your reports</div>
+    </div>
+    <div class="label-small">WILDLIFE GUARDIAN STATUS</div>
+    <div style="height:8px;"></div>
+    <div class="card">
+      <div class="row" style="gap:16px;">
+        <div style="width:48px;height:48px;border-radius:50%;background:radial-gradient(circle, rgba(255,180,84,0.3), transparent 70%);display:flex;align-items:center;justify-content:center;">
+          <span class="material-symbols-outlined" style="color:var(--amber);font-size:28px;">workspace_premium</span>
+        </div>
+        <div><div style="font-weight:700;font-size:15px;">Wildlife Guardian (Level 3)</div><div style="font-size:12px;color:var(--text-secondary);">38/50 reports for next level</div></div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:76%;"></div></div>
+    </div>
+    <div style="height:24px;"></div>
+    <div class="label-small">OTHER BADGES</div>
+    <div style="height:8px;"></div>
+    <div class="row" style="gap:8px;">
+      <div class="badge-card"><span class="material-symbols-outlined">explore</span><span>Scout</span></div>
+      <div class="badge-card"><span class="material-symbols-outlined">nights_stay</span><span>Night Owl</span></div>
+      <div class="badge-card"><span class="material-symbols-outlined">wb_sunny</span><span>Early riser</span></div>
+    </div>
+  </div>`;
+}
+
+/* ---- Settings ---- */
+function setRadius(v){ state.settings.radius = parseFloat(v); render(); }
+function toggleSetting(key){ state.settings[key] = !state.settings[key]; render(); }
+function toggleRow(label, key){
+  return `
+  <div class="row-between pad">
+    <span style="font-size:14px;">${label}</span>
+    <button class="switch ${state.settings[key]?'on':''}" onclick="toggleSetting('${key}')"><span class="knob"></span></button>
+  </div>`;
+}
+function renderSettings(){
+  const r = state.settings.radius;
+  const pct = ((r-0.1)/(5-0.1))*100;
+  return `
+  <div class="screen scroll pad">
+    <div class="row" style="gap:8px;">
+      <button class="icon-btn" onclick="goBack()"><span class="material-symbols-outlined">arrow_back</span></button>
+      <div class="header-title">Settings</div>
+    </div>
+    <div style="height:24px;"></div>
+    <div class="label-small">ALERT RADIUS</div>
+    <div class="card" style="margin:8px 0 24px;">
+      <div style="font-size:14px;">Warn me ${r.toFixed(1)} mi ahead</div>
+      <input type="range" class="slider" min="0.1" max="5" step="0.1" value="${r}" style="--fill:${pct}%;" oninput="this.previousElementSibling.textContent='Warn me '+parseFloat(this.value).toFixed(1)+' mi ahead'; this.style.setProperty('--fill',((this.value-0.1)/(5-0.1)*100)+'%'); setRadius(this.value)">
+    </div>
+    <div class="label-small">NOTIFICATIONS</div>
+    <div class="card" style="padding:0;margin:8px 0 24px;">
+      ${toggleRow('Push alerts','pushAlerts')}<hr class="divider">
+      ${toggleRow('Custom alert sounds for proximity','customSounds')}<hr class="divider">
+      ${toggleRow('Voice alerts while driving','voiceAlerts')}<hr class="divider">
+      ${toggleRow('Weekly impact summary','weeklySummary')}
+    </div>
+    <div class="label-small">SPECIES FILTERS</div>
+    <div class="card" style="padding:0;margin:8px 0 24px;">
+      ${toggleRow('Large mammals (deer, elk)','largeMammals')}<hr class="divider">
+      ${toggleRow('Amphibian migrations','amphibians')}
+    </div>
+  </div>`;
+}
+
+/* ---- SOS ---- */
+function handleSosPhoto(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    state.sos.imageData = e.target.result;
+    state.sos.uploading = true;
+    state.sos.result = null;
+    render();
+    setTimeout(()=>{
+      state.sos.uploading = false;
+      state.sos.result = 'Red-tailed Hawk (Simulated)';
+      render();
+    }, 1500);
+  };
+  reader.readAsDataURL(file);
+}
+function selectSeverity(s){ state.sos.severity = s; render(); }
+function submitSos(){ navigateRoot('main'); }
+function renderSos(){
+  const s = state.sos;
+  return `
+  <div class="screen scroll pad">
+    <div class="row" style="gap:8px;">
+      <button class="icon-btn" onclick="goBack()"><span class="material-symbols-outlined">arrow_back</span></button>
+      <span class="material-symbols-outlined" style="color:var(--coral);">warning</span>
+      <div class="header-title">Emergency SOS</div>
+    </div>
+    <p style="margin:8px 0 16px;color:var(--text-secondary);font-size:12px;">Report wildlife collision to local authorities. Pull over safely first.</p>
+    <div class="gps-badge">
+      <span class="material-symbols-outlined">location_on</span>
+      <div><div style="font-size:10px;color:#555;">Current GPS Coordinates:</div><div style="font-size:12px;font-weight:700;">45.5152° N, 122.6784° W (Portland, OR)</div></div>
+    </div>
+    <div style="height:24px;"></div>
+    <div class="dispatch-card">
+      <div class="dispatch-icon"><span class="material-symbols-outlined">phone</span></div>
+      <div><div style="font-weight:700;">Dispatch local authorities</div><div style="font-size:12px;opacity:0.9;">Oregon Wildlife Rescue · avg. pickup 22 min</div></div>
+    </div>
+    <div style="height:24px;"></div>
+    <div class="label-small">Identify the animal</div>
+    ${!s.imageData ? `
+      <div class="identify-box" onclick="document.getElementById('sosPhoto').click()">
+        <span class="material-symbols-outlined">photo_camera</span>
+        <p style="font-weight:700;margin:8px 0 0;">Snap a photo to identify</p>
+        <p style="margin:0;font-size:12px;color:var(--text-secondary);">We'll suggest a match automatically</p>
+      </div>` : `
+      <div class="identify-result">
+        <img src="${s.imageData}" alt="uploaded animal photo">
+        <div>
+          ${s.uploading
+            ? `<div class="row" style="gap:8px;"><span class="spinner"></span><span style="font-size:12px;color:var(--text-secondary);">Analyzing with Gemini...</span></div>`
+            : `<div style="font-weight:700;">${s.result || 'Unknown'}</div><div style="font-size:12px;color:var(--moss);">92% match · tap to change</div>`}
+        </div>
+      </div>`}
+    <input type="file" id="sosPhoto" accept="image/*" capture="environment" style="display:none" onchange="handleSosPhoto(this)">
+    <div style="height:24px;"></div>
+    <div class="label-small">How does it look</div>
+    <div class="severity-grid">
+      ${['Moving, alert',"Can't move",'Unresponsive'].map(sv=>`
+        <div class="severity-item ${sv===s.severity?'selected':''}" onclick="selectSeverity('${sv}')">${sv}</div>`).join('')}
+    </div>
+    <div class="grow"></div>
+    <div style="height:24px;"></div>
+    <button class="btn btn-coral btn-block" onclick="submitSos()">Send SOS report</button>
+    <div style="height:16px;"></div>
+  </div>`;
+}
+
+/* ---- Dashboard / Planner ---- */
+const DASH_TABS = ['Overview','Hotspots','Reports','Corridors','Rescue','Team'];
+function setDashTab(i){ state.dashboard.tab = i; render(); }
+function refreshDashboard(){
+  if(state.dashboard.refreshing) return;
+  state.dashboard.refreshing = true; render();
+  setTimeout(()=>{ state.dashboard.refreshing = false; render(); }, 1200);
+}
+function kpi(val,label,trend){
+  return `<div class="kpi-card"><div class="val">${val}${trend?`<span class="trend">${trend}</span>`:''}</div><div class="lbl">${label}</div></div>`;
+}
+function speciesBar(name,pct){
+  return `<div class="species-bar-row"><span class="name">${name}</span><div class="bar-track thin"><div class="bar-fill" style="width:${pct}%;"></div></div><span style="font-size:11.5px;color:var(--mist);width:32px;text-align:right;">${pct}%</span></div>`;
+}
+function reportRow(date,species,status){
+  const color = status==='Verified' ? 'var(--moss)' : status==='Pending' ? 'var(--amber)' : 'var(--coral)';
+  return `<div class="report-row"><span>${date}</span><span>${species}</span><span class="badge" style="background:${color}30;color:${color};">${status}</span></div><hr class="divider">`;
+}
+function corridorCard(title,desc,priority,color,cost){
+  return `
+  <div class="corridor-card">
+    <span class="badge" style="background:${color}30;color:${color};">${priority}</span>
+    <div style="font-weight:700;font-size:14.5px;margin:12px 0 8px;">${title}</div>
+    <div style="color:var(--mist);font-size:12px;line-height:1.5;">${desc}</div>
+    <hr class="divider" style="margin:14px 0 12px;">
+    <div class="row-between"><span style="font-size:11px;color:var(--mist);">Est. cost</span><b style="font-size:15px;">${cost}</b></div>
+  </div>`;
+}
+function rescueCard(species,severity,assigned,status,color,time){
+  return `
+  <div class="rescue-card">
+    <div class="rescue-icon"><span class="material-symbols-outlined">pets</span></div>
+    <div class="grow" style="flex:1.5;"><div style="font-weight:700;font-size:12.5px;">${species}</div><div style="font-size:10.5px;color:var(--mist);">${severity}</div></div>
+    <div style="text-align:right;">
+      <span class="badge" style="background:${color}30;color:${color};">${status}</span>
+      <div style="font-size:11px;color:var(--mist);margin-top:6px;">${time}</div>
+    </div>
+  </div>`;
+}
+function partnerCard(name,active,coverage,pickup,cases){
+  return `
+  <div class="partner-card">
+    <div class="row-between">
+      <b style="font-size:13.5px;">${name}</b>
+      <div class="row" style="gap:5px;"><span class="status-dot" style="background:${active?'var(--moss)':'var(--mist)'};"></span><span style="font-size:10px;font-weight:700;color:${active?'var(--moss)':'var(--mist)'};">${active?'Active':'Offline'}</span></div>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--mist);line-height:1.6;">
+      Coverage: <b style="color:#fff;">${coverage}</b><br>
+      Avg. pickup: <b style="color:#fff;">${pickup}</b><br>
+      Open cases: <b style="color:#fff;">${cases}</b>
+    </div>
+  </div>`;
+}
+function teamRow(initials,name,email,role){
+  const admin = role==='Admin';
+  return `
+  <div class="team-row">
+    <div class="team-avatar">${initials}</div>
+    <div class="grow"><div style="font-weight:700;font-size:13px;">${name}</div><div style="font-size:11px;color:var(--mist);">${email}</div></div>
+    <span class="badge" style="background:${admin?'rgba(255,180,84,0.16)':'rgba(255,255,255,0.06)'};color:${admin?'var(--amber)':'var(--mist)'};">${role}</span>
+  </div>`;
+}
+function renderDashboardPanel(){
+  switch(state.dashboard.tab){
+    case 0: return `
+      <div class="dash-panel-title"><h2>Overview</h2><p>Last 90 days · Portland Metro</p></div>
+      <div class="kpi-row">${kpi('1,284','Sightings this quarter','↑ 12%')}${kpi('17','Active hotspots','')}</div>
+      <div class="kpi-row">${kpi('~63','Est. collisions averted','↑ 8%')}${kpi('4,910','Reporting residents','')}</div>
+      <div class="kpi-row">${kpi('62 min','Avg. rescue response','↓ 14%')}${kpi('$1.4M','Infr. budget remaining','')}</div>`;
+    case 1: return `
+      <div class="dash-panel-title"><h2>Hotspot · Route 9, Mile 14–16</h2><p>Highest priority in network</p></div>
+      <div class="dash-card">
+        <div style="font-weight:700;font-size:14.5px;margin-bottom:12px;">Species Breakdown</div>
+        ${speciesBar('Deer',65)}${speciesBar('Coyote',20)}${speciesBar('Elk',15)}
+      </div>
+      <div class="dash-card">
+        <div style="color:var(--mist);font-size:13px;font-weight:500;margin-bottom:12px;">Incident trend</div>
+        <div style="height:100px;display:flex;align-items:center;justify-content:center;color:rgba(142,155,192,0.4);font-size:12px;">[Chart Placeholder]</div>
+      </div>
+      <div class="dash-card">
+        <div style="color:var(--mist);font-size:13px;font-weight:500;margin-bottom:14px;">Recommendation</div>
+        <div style="color:var(--mist);font-size:12px;line-height:1.6;">Sustained cross-season density plus existing signage impact suggests this corridor is a strong candidate for an underpass — intersects the main east–west deer route.</div>
+      </div>`;
+    case 2: return `
+      <div class="dash-panel-title"><h2>Recent Reports</h2><p>Filtered: All Species, All Zones</p></div>
+      <div class="filter-row"><span class="filter-pill">Species: All</span><span class="filter-pill">Zone: All</span></div>
+      <div class="report-table">
+        <div class="report-table-head"><span>Date</span><span>Species</span><span>Status</span></div>
+        <hr class="divider">
+        ${reportRow('Oct 12','Deer','Verified')}
+        ${reportRow('Oct 12','Coyote','Pending')}
+        ${reportRow('Oct 11','Elk','Verified')}
+        ${reportRow('Oct 10','Cougar','Dismissed')}
+        ${reportRow('Oct 10','Deer','Verified')}
+        ${reportRow('Oct 09','Bear','Verified')}
+      </div>`;
+    case 3: return `
+      <div class="dash-panel-title"><h2>Proposed Corridors</h2><p>Active capital planning projects</p></div>
+      ${corridorCard('US-26 Underpass','Near mile marker 45. Critical winter migration route for Roosevelt Elk.','HIGH PRIORITY','var(--coral)','$1.2M')}
+      ${corridorCard('I-84 Fencing Extension','Adding 2 miles of 8ft directional fencing to guide deer towards existing culvert.','MED PRIORITY','var(--amber)','$350K')}
+      ${corridorCard('Hwy 30 Canopy Bridge','Connecting fragmented old-growth canopy for arboreal species.','LOW PRIORITY','var(--moss)','$85K')}
+      <div class="propose-card"><span class="material-symbols-outlined">add</span><div style="font-size:12px;margin-top:8px;">Propose a new corridor</div></div>`;
+    case 4: return `
+      <div class="dash-panel-title"><h2>Rescue Operations</h2><p>Active dispatch &amp; partner network</p></div>
+      <div class="row" style="padding:8px 24px;"><span style="flex:1.5;font-size:10.5px;color:var(--mist);">CASE</span><span style="flex:1;font-size:10.5px;color:var(--mist);">STATUS</span></div>
+      ${rescueCard('Red-tailed Hawk',"Can't move",'OR Wildlife Rescue','En route','var(--amber)','4 min ago')}
+      ${rescueCard('Deer','Unresponsive','Metro Animal','Dispatched','var(--mist)','21 min ago')}
+      ${rescueCard('Raccoon','Moving, alert','Unassigned','Awaiting pickup','var(--mist)','33 min ago')}
+      ${rescueCard('Turtle','Mild injury','OR Wildlife Rescue','Resolved','var(--moss)','Yesterday')}
+      <div style="height:24px;"></div>
+      <div style="padding:0 24px 8px;font-weight:700;font-size:11px;">ACTIVE PARTNERS</div>
+      ${partnerCard('OR Wildlife Rescue',true,'Multnomah, Wash.','45 mins','3')}
+      ${partnerCard('Metro Animal Services',true,'Metro area','60 mins','8')}
+      ${partnerCard('Avian Center',false,'Tri-county','N/A','0')}`;
+    case 5: return `
+      <div class="dash-panel-title"><h2>Planning Team</h2><p>Access management</p></div>
+      <div style="padding:0 24px;">
+        ${teamRow('JD','Jane Doe','jane.doe@oregon.gov','Admin')}
+        ${teamRow('MS','Mike Smith','msmith@metro.gov','Editor')}
+        ${teamRow('AK','Alex Kim','akim@trimet.org','Viewer')}
+      </div>
+      <div class="invite-row">
+        <span class="material-symbols-outlined" style="color:var(--mist);font-size:16px;">mail</span>
+        <span class="grow" style="font-size:12.5px;color:var(--mist);">Invite by email...</span>
+        <button class="btn btn-amber" style="padding:8px 16px;font-size:11.5px;">Invite</button>
+      </div>`;
+    default: return '';
+  }
+}
+function renderDashboard(){
+  const tabsHtml = DASH_TABS.map((t,i)=>`<button class="dash-tab ${state.dashboard.tab===i?'active':''}" onclick="setDashTab(${i})">${t}</button>`).join('');
+  return `
+  <div class="col grow" style="min-height:0;">
+    <div class="dash-header">
+      <span class="material-symbols-outlined">pets</span>
+      <b style="font-size:16px;">CritterCross</b>
+      <span style="color:var(--mist);font-size:12px;">for Planners</span>
+      <button class="refresh-btn" onclick="refreshDashboard()" title="Refresh">
+        <span class="material-symbols-outlined" style="${state.dashboard.refreshing?'animation:spin 0.8s linear infinite;':''}">refresh</span>
+      </button>
+    </div>
+    <div class="dash-tabs">${tabsHtml}</div>
+    <div class="grow scroll" id="dashScroll" style="min-height:0;">
+      <div class="pull-hint">${state.dashboard.refreshing?'Refreshing…':''}</div>
+      <div style="padding-top:4px;">${renderDashboardPanel()}</div>
+      <div style="height:36px;"></div>
+    </div>
+  </div>`;
+}
+
+/* ================= ROUTER / RENDER ================= */
+const SCREENS = {
+  splash: renderSplash,
+  login: renderLogin,
+  qr: renderQr,
+  permissions: renderPermissions,
+  main: renderMain,
+  reportSighting: renderReportSighting,
+  alertDetail: renderAlertDetail,
+  sightingDetail: renderSightingDetail,
+  settings: renderSettings,
+  sos: renderSos
+};
+
+function render(){
+  const fn = SCREENS[state.route] || renderSplash;
+  document.getElementById('app').innerHTML = fn();
+  bindDashboardPull();
+}
+
+function bindDashboardPull(){
+  const el = document.getElementById('dashScroll');
+  if(!el) return;
+  let startY = null, pulled = false;
+  el.addEventListener('touchstart', e=>{
+    if(el.scrollTop <= 0){ startY = e.touches[0].clientY; }
+  }, {passive:true});
+  el.addEventListener('touchmove', e=>{
+    if(startY === null) return;
+    const dy = e.touches[0].clientY - startY;
+    if(dy > 70) pulled = true;
+  }, {passive:true});
+  el.addEventListener('touchend', ()=>{
+    if(pulled && !state.dashboard.refreshing){ refreshDashboard(); }
+    startY = null; pulled = false;
+  });
+}
+
+render();
+</script>
+</body>
+</html>
